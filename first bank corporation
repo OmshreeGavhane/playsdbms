@@ -1,0 +1,83 @@
+Find the names of all employees who work for First Bank Corporation:
+sql
+Copy code
+SELECT e.employee_name
+FROM employee e
+JOIN works w ON e.employee_name = w.employee_name
+WHERE w.company_name = 'First Bank Corporation';
+Find all employees who do not work for First Bank Corporation:
+sql
+Copy code
+SELECT e.employee_name
+FROM employee e
+WHERE e.employee_name NOT IN (
+    SELECT employee_name
+    FROM works
+    WHERE company_name = 'First Bank Corporation'
+);
+Find the company that has the most employees:
+sql
+Copy code
+SELECT company_name
+FROM works
+GROUP BY company_name
+HAVING COUNT(*) = (
+SELECT MAX(emp_count)
+    FROM (
+        SELECT COUNT(*) AS emp_count
+        FROM works
+        GROUP BY company_name
+    )
+);
+Find all companies located in every city where Small Bank Corporation is located:
+sql
+Copy code
+SELECT DISTINCT c.company_name
+FROM company c
+WHERE NOT EXISTS (
+    SELECT city
+    FROM company
+    WHERE company_name = 'Small Bank Corporation'
+    MINUS
+    SELECT city
+    FROM company
+    WHERE c.company_name = company_name
+);
+Find details of employees having a salary greater than 10,000:
+sql
+Copy code
+SELECT *
+FROM employee e
+JOIN works w ON e.employee_name = w.employee_name
+WHERE w.salary > 10000;
+Update the salary of all employees who work for First Bank Corporation by 10%:
+sql
+Copy code
+UPDATE works
+SET salary = salary * 1.10
+WHERE company_name = 'First Bank Corporation';
+Find employees and their managers:
+sql
+Copy code
+SELECT e.employee_name, m.manager_name
+FROM employee e
+LEFT JOIN manages m ON e.employee_name = m.employee_name;
+Find the names, streets, and cities of all employees who work for First Bank Corporation and earn more than 10,000:
+sql
+Copy code
+SELECT e.employee_name, e.street, e.city
+FROM employee e
+JOIN works w ON e.employee_name = w.employee_name
+WHERE w.company_name = 'First Bank Corporation' AND w.salary > 10000;
+Find those companies whose employees earn a higher salary, on average, than the average salary at First Bank Corporation:
+sql
+Copy code
+SELECT c.company_name
+FROM company c
+JOIN works w ON c.company_name = w.company_name
+GROUP BY c.company_name
+HAVING AVG(w.salary) > (
+    SELECT AVG(salary)
+    FROM works
+    WHERE company_name = 'First Bank Corporation'
+);
