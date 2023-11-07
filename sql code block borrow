@@ -1,0 +1,58 @@
+Write an SQL code block
+Borrow(Roll_no, Name, DateofIssue, NameofBook, Status) Fine(Roll_no,Date,Amt)
+Accept roll_no & name of book from user. Check the number of days (from date of issue), if days are between 15 to 30 then fine amount will be Rs 5per day. If no. of days>30, per day fine will be Rs 50 per day & for days less than 30, Rs. 5 per day. After submitting the book, status will change from I to R. If condition of fine is true, then details will be stored into fine table. Also handles the exception by named exception handler or user define exception handler.
+
+
+DECLARE
+    v_roll_no NUMBER;
+    v_book_name VARCHAR(100);
+    v_date_of_issue DATE;
+    v_current_date DATE;
+    v_fine_amount NUMBER;
+    v_status CHAR(1);
+BEGIN
+    -- Prompt the user for input
+    v_roll_no := &Enter_Roll_No;
+    v_book_name := '&Enter_Book_Name';
+-- Fetch the date of issue and status for the given book
+    SELECT DateofIssue, Status INTO v_date_of_issue, v_status
+    FROM Borrow
+    WHERE Roll_no = v_roll_no AND NameofBook = v_book_name;
+    
+    -- Calculate the number of days between the date of issue and current date
+    SELECT SYSDATE INTO v_current_date FROM DUAL;
+    DECLARE
+        v_days NUMBER;
+    BEGIN
+        v_days := v_current_date - v_date_of_issue;
+        
+        -- Check the number of days and calculate fine amount
+        IF v_days BETWEEN 15 AND 30 THEN
+            v_fine_amount := v_days * 5; -- Rs. 5 per day
+        ELSIF v_days > 30 THEN
+            v_fine_amount := v_days * 50; -- Rs. 50 per day
+        ELSE
+            v_fine_amount := 0; -- No fine
+        END IF;
+        
+        -- Update the status of the book to 'R'
+        UPDATE Borrow
+        SET Status = 'R'
+        WHERE Roll_no = v_roll_no AND NameofBook = v_book_name;
+ -- Insert fine details into the Fine table
+        INSERT INTO Fine (Roll_no, Date, Amt)
+        VALUES (v_roll_no, v_current_date, v_fine_amount);
+        
+        -- Display fine amount and status update
+        DBMS_OUTPUT.PUT_LINE('Fine Amount: Rs. ' || v_fine_amount);
+        DBMS_OUTPUT.PUT_LINE('Book Status Updated to "R"');
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            -- Handle exception when the book is not found
+            DBMS_OUTPUT.PUT_LINE('Book not found for the given Roll_no and NameofBook.');
+        WHEN OTHERS THEN
+            -- Handle other exceptions
+            DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+    END;
+END;
+/
