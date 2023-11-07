@@ -1,0 +1,26 @@
+Map reduce ex 2 
+
+
+To find the number of books in the "library" database's "books" collection with fewer than 250 pages categorized as "small" and those with 250 or more pages categorized as "big" using MapReduce in MongoDB, you can follow these steps:
+
+1. Create a database called 'library' and a collection called 'books.
+
+You can do this using the MongoDB shell or a MongoDB client.
+
+2. Create a MapReduce function to categorize the books and count them:
+
+javascript
+Copy code
+// Define the map function
+var mapFunction = function () {
+  if (this.pages < 250) {
+    emit("small", 1);
+  } else {
+    emit("big", 1);
+  }
+};
+
+// Define the reduce function
+var reduceFunction = function (key, values) {
+  return Array.sum(values);
+};
