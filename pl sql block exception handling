@@ -1,0 +1,27 @@
+ssage. Write a PL/SQL block for above requirement using user defined exception handling.
+
+
+-- Create a user-defined exception
+DECLARE
+    insuff_funds EXCEPTION;
+    PRAGMA EXCEPTION_INIT(insuff_funds, -20001); -- Assign a unique error number to the exception
+BEGIN
+    -- Prompt the user to enter account number and withdrawal amount
+    DECLARE
+        v_account_number NUMBER := &Enter_Account_Number;
+        v_withdrawal_amount NUMBER := &Enter_Withdrawal_Amount;
+        v_current_balance NUMBER;
+    BEGIN
+        -- Fetch the current balance for the given account number
+        SELECT balance INTO v_current_balance
+        FROM account_master
+        WHERE account_number = v_account_number;
+
+        -- Check if withdrawal amount is greater than the current balance
+        IF v_withdrawal_amount > v_current_balance THEN
+            -- Raise the user-defined exception insuff_funds with a custom message
+            RAISE_APPLICATION_ERROR(-20001, 'Insufficient funds. Withdrawal amount exceeds current balance.');
+        ELSE
+            -- If withdrawal amount is valid, update the balance
+            UPDATE account_master
+            SET balance = balance - v_withdrawal_amount
