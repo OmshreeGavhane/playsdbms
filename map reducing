@@ -1,0 +1,40 @@
+Map reducing 
+
+Import the "zip.json" collection into your MongoDB database if it's not already there. You can use the mongoimport command to do this. Replace "path_to_zip.json" with the actual path to your JSON file:
+
+shell
+Copy code
+mongoimport --db your_database_name --collection zip --file path_to_zip.json --jsonArray
+2. Create a MapReduce function to calculate the total population by state:
+
+javascript
+Copy code
+// Define the map function
+var mapFunction = function () {
+  emit(this.state, this.pop);
+};
+
+// Define the reduce function
+var reduceFunction = function (key, values) {
+  return Array.sum(values);
+};
+
+// Run the MapReduce
+db.zip.mapReduce(
+  mapFunction,
+  reduceFunction,
+  {
+    out: "total_population_by_state" // Specify the output collection
+  }
+);
+In the map function, we emit the state as the key and the population as the value for each document.
+In the reduce function, we calculate the sum of population values for each state.
+
+3. Query the "total_population_by_state" collection to get the total population for each state:
+
+javascript
+Copy code
+db.total_population_by_state.find().sort({ _id: 1 })
+This query will return the total population for each state, sorted by the state's name in ascending order.
+
+Please make sure to replace your_database_name with the name of your MongoDB database and adjust the collection names as needed.
