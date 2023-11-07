@@ -1,0 +1,35 @@
+The bank manager has decided to activate all those accounts which were previously marked as inactive for performing no transaction in last 365 days. Write a PL/SQ block (using implicit cursor) to update the status of account, display an approximate message based on the no. of rows affected by the update.  (Use of %FOUND, %NOTFOUND, %ROWCOUNT)
+
+DECLARE
+    v_inactive_period NUMBER := 365;  -- Number of days to consider an account inactive
+    v_rows_updated NUMBER := 0;
+
+BEGIN
+    -- Update the status of accounts that have been inactive
+    FOR account_rec IN (SELECT account_number, last_transaction_date, status FROM account_table) LOOP
+        IF (SYSDATE - account_rec.last_transaction_date) > v_inactive_period THEN
+            -- Mark the account as active (you can use your own logic here)
+            UPDATE account_table
+            SET status = 'Active'
+            WHERE account_number = account_rec.account_number;
+            v_rows_updated := v_rows_updated + 1;
+        END IF;
+    END;
+
+    -- Display a message based on the number of rows affected
+    IF v_rows_updated = 0 THEN
+        DBMS_OUTPUT.PUT_LINE('No accounts were updated. All accounts are active.');
+    ELSIF v_rows_updated = 1 THEN
+        DBMS_OUTPUT.PUT_LINE('1 account was updated. It is now active.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE(v_rows_updated || ' accounts were updated. They are now active.');
+END IF;
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Handle any exceptions that may occur during the process
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
