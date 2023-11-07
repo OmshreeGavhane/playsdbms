@@ -1,0 +1,101 @@
+CREATE TABLE Branch (
+    bname VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Customers (
+    cname VARCHAR(50) PRIMARY KEY,
+    city VARCHAR(50)
+);
+
+CREATE TABLE Borrow (
+    loanno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    bname VARCHAR(50),
+    amount DECIMAL(10, 2),
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+
+CREATE TABLE Deposit (
+    actno INT PRIMARY KEY,
+    cname VARCHAR(50),
+    bname VARCHAR(50),
+    amount DECIMAL(10, 2),
+    adate DATE,
+    FOREIGN KEY (cname) REFERENCES Customers(cname),
+    FOREIGN KEY (bname) REFERENCES Branch(bname)
+);
+Now, let's insert some sample data into the tables:
+sql
+Copy code
+-- Insert data into the Branch table
+INSERT INTO Branch (bname, city) VALUES
+    ('Perryridge', 'New York'),
+    ('Brighton', 'Boston'),
+    ('Downtown', 'Los Angeles');
+
+-- Insert data into the Customers table
+INSERT INTO Customers (cname, city) VALUES
+    ('Anil', 'New York'),
+    ('John', 'Boston'),
+    ('Maria', 'Los Angeles'),
+    ('Sara', 'New York');
+
+-- Insert data into the Borrow table
+INSERT INTO Borrow (loanno, cname, bname, amount) VALUES
+    (101, 'Anil', 'Perryridge', 5000.00),
+    (102, 'John', 'Brighton', 6000.00),
+    (103, 'Maria', 'Downtown', 4000.00),
+    (104, 'Sara', 'Perryridge', 4500.00);
+
+-- Insert data into the Deposit table
+INSERT INTO Deposit (actno, cname, bname, amount, adate) VALUES
+    (201, 'Anil', 'Perryridge', 5500.00, '1996-11-10'),
+    (202, 'John', 'Brighton', 6200.00, '1996-12-05'),
+    (203, 'Maria', 'Downtown', 4100.00, '1997-02-15'),
+    (204, 'Sara', 'Perryridge', 4600.00, '1996-05-20');
+Now, let's address your queries:
+Display names of depositors having amount greater than 4000:
+sql
+Copy code
+SELECT cname
+FROM Deposit
+WHERE amount > 4000;
+Display account date of customers Anil:
+sql
+Copy code
+SELECT adate
+FROM Deposit
+WHERE cname = 'Anil';
+Display account no. and deposit amount of customers having accounts opened between dates 1-12-96 and 1-5-97:
+sql
+Copy code
+SELECT actno, amount
+FROM Deposit
+WHERE adate BETWEEN '1996-12-01' AND '1997-05-01';
+Find the average account balance at the Perryridge branch:
+sql
+Copy code
+SELECT AVG(amount) AS avg_balance
+FROM Deposit
+WHERE bname = 'Perryridge';
+Find the names of all branches where the average account balance is more than $1,200:
+sql
+Copy code
+SELECT bname
+FROM Deposit
+GROUP BY bname
+HAVING AVG(amount) > 1200;
+Delete depositors having deposits less than 5000:
+sql
+Copy code
+DELETE FROM Deposit
+WHERE amount < 5000;
+Create a view on the Deposit table:
+sql
+Copy code
+CREATE VIEW DepositView AS
+SELECT actno, cname, bname, amount, adate
+FROM Deposit;
+You can now query the DepositView view like a regular table.
