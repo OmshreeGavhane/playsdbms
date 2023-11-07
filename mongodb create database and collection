@@ -1,0 +1,68 @@
+Mongo db ex 1
+
+Create the database and collections:
+
+You can create the database and collections by running the following commands in the MongoDB shell:
+
+javascript
+Copy code
+use BSIOTR
+
+db.createCollection("Teachers")
+db.createCollection("Students")
+2. Insert sample data into the collections:
+
+You can insert sample data into the collections using the insertOne or insertMany method. Here's an example of how to insert data:
+
+javascript
+Copy code
+// Insert data into the Teachers collection
+db.Teachers.insertMany([
+  {
+    Tname: "John",
+    dno: 101,
+    dname: "Computer",
+    experience: 5,
+    salary: 12000,
+    date_of_joining: new Date("2020-01-15"),
+  },
+  {
+Tname: "Alice",
+    dno: 102,
+    dname: "IT",
+    experience: 7,
+    salary: 11000,
+    date_of_joining: new Date("2018-05-20"),
+  },
+  // Add more teacher documents as needed
+]);
+
+// Insert data into the Students collection
+db.Students.insertMany([
+  {
+    Sname: "Tom",
+    roll_no: 1,
+    class: "12th",
+  },
+  {
+    Sname: "Sarah",
+    roll_no: 2,
+    class: "11th",
+  },
+  // Add more student documents as needed
+]);
+3. Perform the requested operations:
+
+Now you can execute the requested operations:
+db.Teachers.find({})
+db.Teachers.find({ dname: "Computer" })
+db.Teachers.find({ dname: { $in: ["Computer", "IT", "E&TC"] } })
+db.Teachers.find({ dname: { $in: ["Computer", "IT", "E&TC"], salary: { $gte: 10000 } } })
+db.Students.find({ $or: [{ roll_no: 2 }, { Sname: "xyz" }] })
+db.Teachers.update({ Tname: "Praveen" }, { $set: { experience: 10 } }, { upsert: true })
+db.Teachers.update({ dname: "IT" }, { $set: { dname: "COMP" } }, { multi: true })
+db.Teachers.find({}, { Tname: 1, experience: 1, _id: 0 })
+db.Department.save({ dept_name: "E&TC" })
+db.Teachers.update({ Tname: "Rajesh" }, { $set: { dname: "IT" } })
+db.Teachers.deleteMany({ dname: "IT" })
+db.Teachers.find().sort({ Tname: 1 }).limit(3).pretty() 
