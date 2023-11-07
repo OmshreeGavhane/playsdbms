@@ -1,0 +1,63 @@
+What is the total revenue per night from all double rooms?
+sql
+Copy code
+SELECT SUM(r.Price) AS TotalRevenue
+FROM Room r
+WHERE r.Type = 'Double';
+List the details of all rooms at the Grosvenor Hotel, including the name of the guest staying in the room if the room is occupied.
+sql
+Copy code
+SELECT r.RoomNo, r.Type, r.Price, g.GuestName
+FROM Room r
+LEFT JOIN Booking b ON r.RoomNo = b.RoomNo AND r.HotelNo = b.HotelNo
+LEFT JOIN Guest g ON b.GuestNo = g.GuestNo
+WHERE r.HotelNo = (SELECT HotelNo FROM Hotel WHERE Name = 'Grosvenor Hotel');
+What is the average number of bookings for each hotel in April?
+sql
+Copy code
+SELECT h.Name, AVG(CountBookings) AS AvgBookingsInApril
+FROM Hotel h
+LEFT JOIN (
+    SELECT b.HotelNo, COUNT(*) AS CountBookings
+    FROM Booking b
+    WHERE EXTRACT(MONTH FROM DateFrom) = 4
+ GROUP BY b.HotelNo
+) BookingsInApril ON h.HotelNo = BookingsInApril.HotelNo
+GROUP BY h.Name;
+Create an index on a field for performance improvement:
+You can create an index on a field, for example, "HotelNo" in the "Booking" table, which is often used in joins and where clauses for faster retrieval of data.
+
+sql
+Copy code
+CREATE INDEX idx_HotelNo ON Booking (HotelNo);
+List full details of all hotels:
+sql
+Copy code
+SELECT *
+FROM Hotel;
+List full details of all hotels in London:
+sql
+Copy code
+SELECT *
+FROM Hotel
+WHERE City = 'London';
+Update the price of all rooms by 5%:
+sql
+Copy code
+UPDATE Room
+SET Price = Price * 1.05;
+List the number of rooms in each hotel in London:
+sql
+Copy code
+SELECT h.Name, COUNT(r.RoomNo) AS NumberOfRooms
+FROM Hotel h
+LEFT JOIN Room r ON h.HotelNo = r.HotelNo
+WHERE h.City = 'London'
+GROUP BY h.Name;
+List all double or family rooms with a price below £40.00 per night in ascending order of price:
+sql
+Copy code
+SELECT *
+FROM Room
+WHERE (Type = 'Double' OR Type = 'Family') AND Price < 40.00
+ORDER BY Price;
