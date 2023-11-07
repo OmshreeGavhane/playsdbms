@@ -1,0 +1,29 @@
+Organization has decided to increase the salary of employees by 10% of existing salary, who are having salary less than average salary of organization, Whenever such salary updates takes place, a record for the same is maintained in the increment_salary table.
+
+DECLARE
+    v_avg_salary NUMBER;
+BEGIN
+    -- Calculate the average salary of the organization
+    SELECT AVG(salary) INTO v_avg_salary FROM emp;
+
+    -- Update the salary of employees with less than the average salary
+    UPDATE emp
+    SET salary = salary * 1.10  -- Increase by 10%
+    WHERE salary < v_avg_salary;
+
+    -- Insert a record into the increment_salary table for each updated employee
+    FOR employee_rec IN (SELECT eno, salary FROM emp WHERE salary < v_avg_salary) LOOP
+        INSERT INTO increment_salary (eno, old_salary, new_salary, increment_date)
+        VALUES (employee_rec.eno, employee_rec.salary, employee_rec.salary * 1.10, SYSDATE);
+    END;
+-- Display a message to indicate the update and insertion
+    DBMS_OUTPUT.PUT_LINE('Salary increased by 10% for employees with salary less than average.');
+    
+    COMMIT;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Handle any exceptions that may occur during the process
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
