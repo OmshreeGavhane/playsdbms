@@ -1,0 +1,72 @@
+Retrieve city, phone, URL of the author whose name is 'CHETAN BHAGAT':
+sql
+Copy code
+SELECT CITY, PHONE, URL
+FROM AUTHOR
+WHERE ANAME = 'CHETAN BHAGAT';
+Retrieve book title, reviewable ID, and rating of all books:
+sql
+Copy code
+SELECT B.BOOK_TITLE, R.RID, R.RATING
+FROM BOOK B
+LEFT JOIN REVIEW R ON B.ISBN = R.ISBN;
+Retrieve book title, price, author name, and URL for publishers 'MEHTA':
+sql
+Copy code
+SELECT B.BOOK_TITLE, B.PRICE, A.ANAME, A.URL
+FROM BOOK B
+JOIN AUTHOR_BOOK AB ON B.ISBN = AB.ISBN
+JOIN AUTHOR A ON AB.AID = A.AID
+WHERE B.PID IN (SELECT PID FROM PUBLISHER WHERE PNAME = 'MEHTA');
+In the PUBLISHER relation, change the phone number of 'MEHTA' to 123456:
+sql
+Copy code
+UPDATE PUBLISHER
+SET PHONE = '123456'
+WHERE PNAME = 'MEHTA';
+Calculate and display the average, maximum, minimum price of each publisher:
+sql
+Copy code
+SELECT PID, PNAME, AVG(PRICE) AS AVERAGE_PRICE, MAX(PRICE) AS MAX_PRICE, MIN(PRICE) AS MIN_PRICE
+FROM PUBLISHER
+LEFT JOIN BOOK ON PUBLISHER.PID = BOOK.PID
+GROUP BY PID, PNAME;
+Delete details of all books having a page count less than 100:
+sql
+Copy code
+DELETE FROM BOOK
+WHERE PAGE_COUNT < 100;
+Retrieve details of all authors residing in the city 'Pune' and whose name begins with a character:
+sql
+Copy code
+SELECT *
+FROM AUTHOR
+WHERE CITY = 'Pune' AND ANAME LIKE 'A%';
+Retrieve details of authors residing in the same city as 'Korth':
+sql
+Copy code
+SELECT DISTINCT A.*
+FROM AUTHOR A
+JOIN AUTHOR AK ON A.CITY = AK.CITY
+WHERE AK.ANAME = 'Korth' AND A.ANAME != 'Korth';
+Create a procedure to update the value of the page count of a book with a given ISBN:
+sql
+Copy code
+CREATE OR REPLACE PROCEDURE UpdatePageCount (ISBN_PARAM IN VARCHAR2, NEW_PAGE_COUNT IN NUMBER) AS
+BEGIN
+    UPDATE BOOK
+    SET PAGE_COUNT = NEW_PAGE_COUNT
+    WHERE ISBN = ISBN_PARAM;
+    COMMIT;
+END;
+Create a function that returns the price of a book with a given ISBN:
+sql
+Copy code
+CREATE OR REPLACE FUNCTION GetBookPrice (ISBN_PARAM IN VARCHAR2) RETURN NUMBER AS
+  BOOK_PRICE NUMBER;
+BEGIN
+  SELECT PRICE INTO BOOK_PRICE
+  FROM BOOK
+  WHERE ISBN = ISBN_PARAM;
+  RETURN BOOK_PRICE;
+END;
