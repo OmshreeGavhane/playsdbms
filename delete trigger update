@@ -1,0 +1,62 @@
+Write a update, delete trigger on clientmstr table. The System should keep track of the records that ARE BEING updated or deleted. The old value of updated or deleted records should be added in audit_trade table. (separate implementation using both row and statement triggers).
+
+Row-Level Trigger (For Updating):
+
+plsql
+Copy code
+CREATE OR REPLACE TRIGGER update_audit_row
+BEFORE UPDATE ON clientmstr
+FOR EACH ROW
+BEGIN
+    IF :OLD.field1 <> :NEW.field1 OR :OLD.field2 <> :NEW.field2 THEN
+        INSERT INTO audit_trade (action_type, table_name, field_name, old_value, new_value, change_date)
+        VALUES ('UPDATE', 'clientmstr', 'field1', :OLD.field1, :NEW.field1, SYSDATE);
+        INSERT INTO audit_trade (action_type, table_name, field_name, old_value, new_value, change_date)
+        VALUES ('UPDATE', 'clientmstr', 'field2', :OLD.field2, :NEW.field2, SYSDATE);
+    END IF;
+END;
+/
+Row-Level Trigger (For Deleting):
+
+plsql
+Copy code
+CREATE OR REPLACE TRIGGER delete_audit_row
+BEFORE DELETE ON clientmstr
+FOR EACH ROW
+BEGIN
+    INSERT INTO audit_trade (action_type, table_name, field_name, old_value, new_value, change_date)
+    VALUES ('DELETE', 'clientmstr', 'field1', :OLD.field1, NULL, SYSDATE);
+    INSERT INTO audit_trade (action_type, table_name, field_name, old_value, new_value, change_date)
+    VALUES ('DELETE', 'clientmstr', 'field2', :OLD.field2, NULL, SYSDATE);
+END;
+/
+Statement-Level Trigger (For Updating):
+
+plsql
+Copy code
+CREATE OR REPLACE TRIGGER update_audit_statement
+AFTER UPDATE ON clientmstr
+BEGIN
+    FOR r IN (SELECT * FROM clientmstr WHERE field1 <> :OLD.field1 OR field2 <> :OLD.field2) LOOP
+        INSERT INTO audit_trade (action_type, table_name, field_name, old_value, new_value, change_date)
+        VALUES ('UPDATE', 'clientmstr', 'field1', r.field1, r.field1, SYSDATE);
+        INSERT INTO audit_trade (action_type, table_name, field_name, old_value, new_value, change_date)
+        VALUES ('UPDATE', 'clientmstr', 'field2', r.field2, r.field2, SYSDATE);
+    END LOOP;
+END;
+/
+Statement-Level Trigger (For Deleting):
+
+plsql
+Copy code
+CREATE OR REPLACE TRIGGER delete_audit_statement
+AFTER DELETE ON clientmstr
+BEGIN
+    FOR r IN (SELECT * FROM clientmstr WHERE field1 <> :OLD.field1 OR field2 <> :OLD.field2) LOOP
+        INSERT INTO audit_trade (action_type, table_name, field_name, old_value, new_value, change_date)
+        VALUES ('DELETE', 'clientmstr', 'field1', r.field1, NULL, SYSDATE);
+        INSERT INTO audit_trade (action_type, table_name, field_name, old_value, new_value, change_date)
+        VALUES ('DELETE', 'clientmstr', 'field2', r.field2, NULL, SYSDATE);
+    END LOOP;
+END;
+/
