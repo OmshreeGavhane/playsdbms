@@ -1,0 +1,89 @@
+List full details of all hotels:
+sql
+Copy code
+SELECT *
+FROM Hotel;
+List full details of all hotels in London:
+sql
+Copy code
+SELECT *
+FROM Hotel
+WHERE City = 'London';
+List all guests currently staying at the Grosvenor Hotel:
+sql
+Copy code
+SELECT Guest.GuestName
+FROM Booking
+JOIN Guest ON Booking.GuestNo = Guest.GuestNo
+WHERE Booking.HotelNo = (SELECT HotelNo FROM Hotel WHERE Name = 'Grosvenor Hotel')
+  AND DateFrom <= CURRENT_DATE
+  AND DateTo >= CURRENT_DATE;
+List the names and addresses of all guests in London, alphabetically ordered by name:
+sql
+Copy code
+SELECT GuestName, GuestAddress
+FROM Guest
+WHERE GuestNo IN (
+    SELECT Guest.GuestNo
+    FROM Guest
+JOIN Booking ON Guest.GuestNo = Booking.GuestNo
+    JOIN Hotel ON Booking.HotelNo = Hotel.HotelNo
+    WHERE Hotel.City = 'London'
+    ORDER BY GuestName
+);
+List the bookings for which no DateTo has been specified:
+sql
+Copy code
+SELECT *
+FROM Booking
+WHERE DateTo IS NULL;
+How many hotels are there?
+sql
+Copy code
+SELECT COUNT(*)
+FROM Hotel;
+List the rooms that are currently unoccupied at the Grosvenor Hotel:
+sql
+Copy code
+SELECT RoomNo, Type
+FROM Room
+WHERE HotelNo = (SELECT HotelNo FROM Hotel WHERE Name = 'Grosvenor Hotel')
+  AND RoomNo NOT IN (
+    SELECT RoomNo
+    FROM Booking
+    WHERE HotelNo = (SELECT HotelNo FROM Hotel WHERE Name = 'Grosvenor Hotel')
+      AND DateFrom <= CURRENT_DATE
+      AND DateTo >= CURRENT_DATE
+);
+What is the lost income from unoccupied rooms at each hotel today?
+sql
+Copy code
+SELECT h.Name, SUM(r.Price) AS LostIncome
+FROM Hotel h
+JOIN Room r ON h.HotelNo = r.HotelNo
+WHERE r.HotelNo NOT IN (
+    SELECT Booking.HotelNo
+    FROM Booking
+    WHERE DateFrom <= CURRENT_DATE
+      AND DateTo >= CURRENT_DATE
+)
+GROUP BY h.Name;
+Create an index on a field for performance improvement:
+You can create an index on a field, for example, "HotelNo" in the "Booking" table, which is often used in joins and where clauses for faster retrieval of data.
+
+sql
+Copy code
+CREATE INDEX idx_HotelNo ON Booking (HotelNo);
+Create one view on the above database and query it:
+For example, you can create a view that lists the rooms for each hotel:
+
+sql
+Copy code
+CREATE VIEW HotelRooms AS
+SELECT h.Name AS HotelName, r.RoomNo, r.Type, r.Price
+FROM Hotel h
+JOIN Room r ON h.HotelNo = r.HotelNo;
+Now, you can query this view:
+sql
+Copy code
+SELECT * FROM HotelRooms;
