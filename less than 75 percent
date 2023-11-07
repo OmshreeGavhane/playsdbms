@@ -1,0 +1,43 @@
+Less than 75 percent attendance question term granted not granted
+
+DECLARE
+    v_roll_number NUMBER;
+    v_attendance NUMBER;
+BEGIN
+    -- Prompt the user for the Roll number
+    v_roll_number := &Enter_Roll_Number;
+
+    -- Fetch attendance from the Stud table
+    SELECT Att INTO v_attendance
+    FROM Stud
+    WHERE Roll = v_roll_number;
+
+    -- Check if attendance is less than 75%
+    IF v_attendance < 75 THEN
+        -- If attendance is less than 75%, set the status as "D"
+        UPDATE Stud
+        SET Status = 'D'
+WHERE Roll = v_roll_number;
+
+        -- Display "Term not granted" message
+        DBMS_OUTPUT.PUT_LINE('Term not granted');
+    ELSE
+        -- If attendance is 75% or more, set the status as "ND"
+        UPDATE Stud
+        SET Status = 'ND'
+        WHERE Roll = v_roll_number;
+
+        -- Display "Term granted" message
+        DBMS_OUTPUT.PUT_LINE('Term granted');
+    END IF;
+
+    COMMIT;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        -- Handle exception when the Roll number is not found
+        DBMS_OUTPUT.PUT_LINE('Roll number not found.');
+    WHEN OTHERS THEN
+        -- Handle other exceptions
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+/
