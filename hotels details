@@ -1,0 +1,71 @@
+List full details of all hotels:
+sql
+Copy code
+SELECT *
+FROM Hotel;
+How many hotels are there?
+sql
+Copy code
+SELECT COUNT(*)
+FROM Hotel;
+List the price and type of all rooms at the Grosvenor Hotel:
+sql
+Copy code
+SELECT Type, Price
+FROM Room
+WHERE HotelNo = (SELECT HotelNo FROM Hotel WHERE Name = 'Grosvenor Hotel');
+List the number of rooms in each hotel:
+sql
+Copy code
+SELECT Hotel.Name, COUNT(Room.RoomNo) AS NumberOfRooms
+FROM Hotel
+LEFT JOIN Room ON Hotel.HotelNo = Room.HotelNo
+GROUP BY Hotel.Name;
+Update the price of all rooms by 5%:
+sql
+Copy code
+UPDATE Room
+SET Price = Price * 1.05;
+List full details of all hotels in London:
+sql
+Copy code
+SELECT *
+FROM Hotel
+WHERE City = 'London';
+What is the average price of a room?
+sql
+Copy code
+SELECT AVG(Price)
+FROM Room;
+List all guests currently staying at the Grosvenor Hotel:
+sql
+Copy code
+SELECT Guest.GuestName
+FROM Booking
+JOIN Guest ON Booking.GuestNo = Guest.GuestNo
+WHERE Booking.HotelNo = (SELECT HotelNo FROM Hotel WHERE Name = 'Grosvenor Hotel')
+  AND DateFrom <= CURRENT_DATE
+  AND DateTo >= CURRENT_DATE;
+List the number of rooms in each hotel in London:
+sql
+Copy code
+SELECT Hotel.Name, COUNT(Room.RoomNo) AS NumberOfRooms
+FROM Hotel
+LEFT JOIN Room ON Hotel.HotelNo = Room.HotelNo
+WHERE Hotel.City = 'London'
+GROUP BY Hotel.Name;
+Create a view on the above database and query it:
+First, create a view to list the number of rooms in each hotel:
+
+sql
+Copy code
+CREATE VIEW HotelRoomCount AS
+SELECT Hotel.Name, COUNT(Room.RoomNo) AS NumberOfRooms
+FROM Hotel
+LEFT JOIN Room ON Hotel.HotelNo = Room.HotelNo
+GROUP BY Hotel.Name;
+Now, you can query the view to get the number of rooms in each hotel:
+
+sql
+Copy code
+SELECT * FROM HotelRoomCount;
