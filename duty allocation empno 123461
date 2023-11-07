@@ -1,0 +1,103 @@
+Get the duty allocation details for emp_no 123461 for the month of April 1986:
+sql
+Copy code
+SELECT *
+FROM Duty_allocation
+WHERE emp_no = 123461
+AND EXTRACT(MONTH FROM day) = 4
+AND EXTRACT(YEAR FROM day) = 1986;
+Find the shift details for Employee 'xyz':
+sql
+Copy code
+SELECT D.day, D.shift
+FROM Duty_allocation D
+JOIN Employee E ON D.emp_no = E.emp_no
+WHERE E.name = 'xyz';
+Get employees whose rate of pay is more than or equal to the rate of pay of employee 'xyz':
+sql
+Copy code
+SELECT E.emp_no, E.name
+FROM Employee E
+WHERE E.pay_rate >= (SELECT pay_rate FROM Employee WHERE name = 'xyz');
+Get the names and pay rates of employees with emp_no less than 123460 whose rate of pay is more than the rate of pay of at least one employee with emp_no greater than or equal to 123460:
+sql
+Copy code
+SELECT E.emp_no, E.name, E.pay_rate
+FROM Employee E
+WHERE E.emp_no < 123460
+8th 
+
+Get the duty allocation details for emp_no 123461 for the month of April 1986:
+sql
+Copy code
+SELECT *
+FROM Duty_allocation
+WHERE emp_no = 123461
+AND EXTRACT(MONTH FROM day) = 4
+AND EXTRACT(YEAR FROM day) = 1986;
+Find the shift details for Employee 'xyz':
+sql
+Copy code
+SELECT D.day, D.shift
+FROM Duty_allocation D
+JOIN Employee E ON D.emp_no = E.emp_no
+WHERE E.name = 'xyz';
+Get employees whose rate of pay is more than or equal to the rate of pay of employee 'xyz':
+sql
+Copy code
+SELECT E.emp_no, E.name
+FROM Employee E
+WHERE E.pay_rate >= (SELECT pay_rate FROM Employee WHERE name = 'xyz');
+Get the names and pay rates of employees with emp_no less than 123460 whose rate of pay is more than the rate of pay of at least one employee with emp_no greater than or equal to 123460:
+sql
+Copy code
+SELECT E.emp_no, E.name, E.pay_rate
+FROM Employee E
+WHERE E.emp_no < 123460
+AND E.pay_rate > (SELECT MAX(pay_rate) FROM Employee WHERE emp_no >= 123460);
+Find the names of employees who are assigned to all positions that require a Chef's skill:
+sql
+Copy code
+SELECT E.name
+FROM Employee E
+WHERE NOT EXISTS (
+    SELECT P.skill
+    FROM Position P
+    WHERE P.skill = 'Chef'
+    MINUS
+    SELECT D.skill
+    FROM Duty_allocation D
+    WHERE D.emp_no = E.emp_no
+);
+Find the employees with the lowest pay rate:
+sql
+Copy code
+SELECT E.emp_no, E.name, E.pay_rate
+FROM Employee E
+WHERE E.pay_rate = (SELECT MIN(pay_rate) FROM Employee);
+Get the employee numbers of all employees working on at least two dates:
+sql
+Copy code
+SELECT emp_no
+FROM Duty_allocation
+GROUP BY emp_no
+HAVING COUNT(DISTINCT day) >= 2;
+Get a list of names of employees with the skill of Chef who are assigned a duty:
+sql
+Copy code
+SELECT DISTINCT E.name
+FROM Employee E
+JOIN Duty_allocation D ON E.emp_no = D.emp_no
+WHERE E.skill = 'Chef';
+Get a list of employees not assigned a duty:
+sql
+Copy code
+SELECT E.emp_no, E.name
+FROM Employee E
+WHERE E.emp_no NOT IN (SELECT DISTINCT emp_no FROM Duty_allocation);
+Get a count of different employees on each shift:
+sql
+Copy code
+SELECT shift, COUNT(DISTINCT emp_no) AS EmployeeCount
+FROM Duty_allocation
+GROUP BY shift;
