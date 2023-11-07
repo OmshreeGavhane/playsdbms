@@ -1,0 +1,21 @@
+Write an SQL code block these raise a user defined exception where business rule is voilated. BR for client_ master table specifies when the value of bal_due field is less than 0 handle the exception.
+
+
+DECLARE
+    -- Define a user-defined exception
+    bal_due_violation EXCEPTION;
+BEGIN
+    -- Check the business rule
+    IF (SELECT COUNT(*) FROM client_master WHERE bal_due < 0) > 0 THEN
+        -- Raise the user-defined exception with a custom message
+        RAISE bal_due_violation;
+    ELSE
+        -- Your business logic when the rule is not violated
+        DBMS_OUTPUT.PUT_LINE('Business rule not violated. Continue processing...');
+    END IF;
+EXCEPTION
+    WHEN bal_due_violation THEN
+        -- Handle the exception with a custom message
+        DBMS_OUTPUT.PUT_LINE('Business rule violated: bal_due is less than 0.');
+END;
+/
