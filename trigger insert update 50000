@@ -1,0 +1,42 @@
+Write a before trigger for Insert, update event considering following requirement: Emp(e_no, e_name, salary) I) Trigger action should be initiated when salary is tried to be inserted is less than Rs. 50,000/- II) Trigger action should be initiated when salary is tried to be updated for value less than Rs. 50,000/- Action should be rejection of update or Insert operation by displaying appropriate error message. Also the new values expected to be inserted will be stored in new table Tracking(e_no, salary).
+ 
+
+
+To create a before trigger for both insert and update events on the Emp table to enforce the requirement of rejecting operations when the salary is less than Rs. 50,000 and to store the expected new values in the Tracking table, you can use the following PL/SQL code:
+
+plsql
+Copy code
+-- Create the Tracking table if it doesn't already exist
+CREATE TABLE Tracking (
+    e_no NUMBER,
+    salary NUMBER
+);
+
+-- Create a trigger for both insert and update events
+CREATE OR REPLACE TRIGGER salary_check
+BEFORE INSERT OR UPDATE ON Emp
+FOR EACH ROW
+BEGIN
+    IF :NEW.salary < 50000 THEN
+        -- Reject the operation by raising an exception
+        RAISE_APPLICATION_ERROR(-20001, 'Salary must be greater than or equal to Rs. 50,000.');
+    ELSE
+        -- Insert the expected new values into the Tracking table
+        IF INSERTING THEN
+ INSERT INTO Tracking (e_no, salary)
+            VALUES (:NEW.e_no, :NEW.salary);
+        ELSIF UPDATING THEN
+            INSERT INTO Tracking (e_no, salary)
+            VALUES (:NEW.e_no, :NEW.salary);
+        END IF;
+    END IF;
+END;
+/
+In this PL/SQL code:
+
+We create a Tracking table to store the expected new values of e_no and salary.
+We create a before trigger named salary_check for both insert and update events on the Emp table.
+The trigger checks if the :NEW.salary value is less than Rs. 50,000.
+If the salary is less than Rs. 50,000, the operation is rejected by raising a custom exception.
+If the salary is greater than or equal to Rs. 50,000, the trigger inserts the expected new values into the Tracking table.
+The RAISE_APPLICATION_ERROR function is used to raise a custom exception with an appropriate error message when the salary condition is not met.
