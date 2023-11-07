@@ -1,0 +1,63 @@
+List the maximum salary paid to salesman:
+sql
+Copy code
+SELECT MAX(salary)
+FROM Emp
+WHERE job = 'salesman';
+List names of employees whose names start with 'I':
+sql
+Copy code
+SELECT ename
+FROM Emp
+WHERE ename LIKE 'I%';
+List details of employees who have joined before '30-sept-81':
+sql
+Copy code
+SELECT *
+FROM Emp
+WHERE hiredate < TO_DATE('1981-09-30', 'yyyy-mm-dd');
+List employee details in descending order of their basic salary:
+sql
+Copy code
+SELECT *
+FROM Emp
+ORDER BY salary DESC;
+List the number of employees and the average salary for employees in department number '20':
+sql
+
+Copy code
+SELECT COUNT(*), AVG(salary)
+FROM Emp
+WHERE deptno = 20;
+List the average salary and minimum salary of employees hire-date-wise for department number '10':
+sql
+Copy code
+SELECT hiredate, AVG(salary), MIN(salary)
+FROM Emp
+WHERE deptno = 10
+GROUP BY hiredate;
+List employee names and their departments:
+sql
+Copy code
+SELECT e.ename, d.deptname
+FROM Emp e
+JOIN Dept d ON e.deptno = d.deptno;
+List the total salary paid to each department:
+sql
+Copy code
+SELECT d.deptname, SUM(e.salary)
+FROM Emp e
+JOIN Dept d ON e.deptno = d.deptno
+GROUP BY d.deptname;
+List details of employees working in the 'Dev' department:
+sql
+Copy code
+SELECT *
+FROM Emp
+WHERE deptno = (SELECT deptno FROM Dept WHERE deptname = 'Dev');
+Update the salary of all employees in department number 10 by 5%:
+sql
+Copy code
+UPDATE Emp
+SET salary = salary * 1.05
+WHERE deptno = 10;
